@@ -8,18 +8,24 @@ export class BookController {
   }
   @Get('')
   getBooks(@Query() queryElements) {
+    this.pagination.reset();
     if ("page" in queryElements)
-      this.pagination.page = queryElements["page"];
+      this.pagination.page = Number.parseInt(queryElements["page"]);
     if ("nb_per_page" in queryElements)
       this.pagination.recordsPerPage = Number.parseInt(queryElements["nb_per_page"]);
     if ("author" in queryElements)
-      return this.bookService.getBooksOf(decodeURIComponent(queryElements["author"]),this.pagination);
-    return this.bookService.getAllBooks(this.pagination).then(
-      res => {
-        let result = { data: res, page: this.pagination.page, nb_per_page: this.pagination.recordsPerPage }
-        return result;
-      }
-    );
+      return this.bookService.getBooksOf(decodeURIComponent(queryElements["author"]), this.pagination).then(
+        res => {
+          let result = { data: res, page: this.pagination.page, nb_per_page: this.pagination.recordsPerPage, total_count: this.pagination.total_res }
+          return result;
+        }
+      );
+      return this.bookService.getAllBooks(this.pagination).then(
+        res => {
+          let result = { data: res, page: this.pagination.page, nb_per_page: this.pagination.recordsPerPage, total_count: this.pagination.total_res }
+          return result;
+        }
+      );
   }
   @Post('')
   postBook(@Body() args) {
@@ -39,11 +45,17 @@ export class BookController {
   }
   @Post(':search')
   search(@Body() term, @Query() queryElements) {
+    this.pagination.reset();
     if ("page" in queryElements)
-      this.pagination.page = queryElements["page"];
+      this.pagination.page = Number.parseInt(queryElements["page"]);
     if ("nb_per_page" in queryElements)
-      this.pagination.recordsPerPage = queryElements["nb_per_page"];
-    return this.bookService.searchBook(decodeURIComponent(term["term"]),this.pagination);
+      this.pagination.recordsPerPage = Number.parseInt(queryElements["nb_per_page"]);
+    return this.bookService.searchBook(decodeURIComponent(term["term"]), this.pagination).then(
+      res => {
+        let result = { data: res, page: this.pagination.page, nb_per_page: this.pagination.recordsPerPage, total_count: this.pagination.total_res }
+        return result;
+      }
+    );
   }
 
 }
